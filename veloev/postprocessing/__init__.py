@@ -1,4 +1,4 @@
 from .postprocess import (
-    check_save_summarize_benchmark_info,
-    run_benchmark_postprocessing
+    check_save_summarize_info,
+    run_postprocessing
 )

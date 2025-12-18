@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Union, Optional
 
 
-def plot_benchmark_task(
+def plot_task(
     benchmark_info: Dict[str, Any], 
     plot_type: str = 'directional',
     base_dir: Union[str, Path] = './',
@@ -303,7 +303,7 @@ def plot_benchmark_task(
     plt.show()
 
 
-def plot_benchmark_overall(
+def plot_overall(
     benchmark_info: Dict[str, Any], 
     include_types: List[str],
     base_dir: Union[str, Path] = './',

@@ -11,7 +11,7 @@ from scipy.stats import pearsonr
 from tqdm import tqdm
 
 
-def run_benchmark_evaluation(benchmark_info: dict, base_dir: str = './'):
+def run_evaluation(benchmark_info: dict, base_dir: str = './'):
     """
     Runs the evaluation metrics for all datasets defined in benchmark_info.
     

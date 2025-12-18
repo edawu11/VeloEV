@@ -16,7 +16,7 @@ import pandas as pd
 scv.settings.verbosity = 0
 
 
-def check_save_summarize_benchmark_info(
+def check_save_summarize_info(
     info_dict: Dict[str, List[Any]], 
     save: bool = True, 
     file_path: Union[str, Path] = "benchmark_info.pkl"
@@ -171,7 +171,7 @@ def check_save_summarize_benchmark_info(
        
 
 
-def run_benchmark_postprocessing(benchmark_info: dict, base_dir: str = './', n_jobs: int = 8):
+def run_postprocessing(benchmark_info: dict, base_dir: str = './', n_jobs: int = 8):
     """
     Runs the post-processing step for all datasets defined in benchmark_info.
 
