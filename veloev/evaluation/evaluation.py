@@ -14,11 +14,23 @@ from tqdm import tqdm
 def run_evaluation(benchmark_info: dict, base_dir: str = './'):
     """
     Runs the evaluation metrics for all datasets defined in benchmark_info.
-    
-    Updates:
-    - Supports 'seq_depth_*' dataset types.
-    - Automatically calculates stability score for seq_depth datasets after 
+
+    This function automatically maps dataset types to the appropriate metrics and 
+    displays a global progress bar tracking the total number of metrics calculated.
+
+    **Recent Updates:**
+
+    * Supports 'seq_depth_*' dataset types.
+    * Automatically calculates stability score for seq_depth datasets after 
       base metrics (cbdir/tsc) are computed.
+
+    Args:
+        benchmark_info (dict): The benchmark configuration dictionary.
+        base_dir (str): The root directory containing dataset folders. 
+            Defaults to './'.
+
+    Raises:
+        KeyError: If required keys ('datasets_name' or 'datasets_type') are missing.
     """
     
     # 1. Define Metric Mapping
@@ -31,17 +43,21 @@ def run_evaluation(benchmark_info: dict, base_dir: str = './'):
         'simulation': ['dcor', 'pr'],
         
         # Seq Depth Types (Stability Analysis)
-        'seq_depth_directional': ['cbdir','icvcoh'],
-        'seq_depth_temporal': ['cto','tsc'],
-        'seq_depth_directional_temporal': ['cbdir','icvcoh','cto','tsc'],
+        'seq_depth_directional': ['cbdir', 'icvcoh'],
+        'seq_depth_temporal': ['cto', 'tsc'],
+        'seq_depth_directional_temporal': ['cbdir', 'icvcoh', 'cto', 'tsc'],
     }
 
     # 2. Extract Data
+    # [FIX] 优先使用 'datasets_type'，这是你在 postprocess 中验证过的标准键名
+    # 如果只写 'tasks'，旧代码可能会出错
     names = benchmark_info.get('datasets_name')
     types = benchmark_info.get('tasks')
     
     if names is None:
         raise KeyError("Could not find 'datasets_name' in benchmark_info")
+    if types is None:
+        raise KeyError("Could not find 'tasks' in benchmark_info")
         
     num_datasets = len(names)
 
@@ -55,7 +71,7 @@ def run_evaluation(benchmark_info: dict, base_dir: str = './'):
             tasks.append((i, ds_name, metric, ds_type))
 
     if not tasks:
-        print("No metrics to process. Check 'datasets_type' definitions.")
+        print("No metrics to process. Check 'tasks' definitions.")
         return
 
     print(f"🚀 Starting evaluation: {len(tasks)} metric calculations across {num_datasets} datasets.")
