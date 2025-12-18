@@ -8,7 +8,7 @@ import numpy as np
 import scanpy as sc
 import scvelo as scv
 from scipy.sparse import issparse
-import utils
+from . import utils
 from tqdm import tqdm
 import pandas as pd
 
