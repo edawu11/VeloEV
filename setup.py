@@ -20,7 +20,7 @@ setup(
     description="Evaluation and visualization for RNA velocity methods",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/edawu11/veloev",
+    url="https://github.com/edawu11/VeloEV",
     license="MIT",
     classifiers=[
         "Development Status :: 3 - Alpha",

@@ -8,7 +8,7 @@ You can install `veloev` by cloning the repository and installing it via pip.
 
 ```bash
 # 1. Clone the repository
-git clone [https://github.com/edawu11/veloev.git](https://github.com/edawu11/veloev.git)
+git clone [https://github.com/edawu11/VeloEV.git](https://github.com/edawu11/VeloEV.git)
 
 # 2. Navigate into the directory
 cd veloev
