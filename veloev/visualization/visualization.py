@@ -56,13 +56,13 @@ def plot_task(
             'valid_ds_types': ['simulation']
         },
         'seq_depth_directional': {
-            'title': 'Sequence depth stability (Directional)',
+            'title': 'Sequence depth stability (directional)',
             'metrics': ['s_cbdir', 's_icvcoh'], 
             'labels': [r'$S_{CBDir}$', r'$S_{ICVCoh}$'],
             'valid_ds_types': ['seq_depth_directional', 'seq_depth_directional_temporal']
         },
         'seq_depth_temporal': {
-            'title': 'Sequence depth stability (Temporal)',
+            'title': 'Sequence depth stability (temporal)',
             'metrics': ['s_cto', 's_tsc'], 
             'labels': [r'$S_{CTO}$', r'$S_{TSC}$'],
             'valid_ds_types': ['seq_depth_temporal', 'seq_depth_directional_temporal']
@@ -364,13 +364,13 @@ def plot_overall(
             'valid_ds_types': ['simulation']
         },
         'seq_depth_directional': {
-            'title': 'Sequence depth stability (Directional)',
+            'title': 'Sequence depth stability (directional)',
             'metrics': ['s_cbdir', 's_icvcoh'], 
             'labels': [r'$S_{CBDir}$', r'$S_{ICVCoh}$'],
             'valid_ds_types': ['seq_depth_directional', 'seq_depth_directional_temporal']
         },
         'seq_depth_temporal': {
-            'title': 'Sequence depth stability (Temporal)',
+            'title': 'Sequence depth stability (temporal)',
             'metrics': ['s_cto', 's_tsc'], 
             'labels': [r'$S_{CTO}$', r'$S_{TSC}$'],
             'valid_ds_types': ['seq_depth_temporal', 'seq_depth_directional_temporal']

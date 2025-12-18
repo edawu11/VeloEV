@@ -44,6 +44,13 @@ nbsphinx_allow_errors = True
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
+# html_theme = 'sphinx_rtd_theme'
+html_theme = 'sphinx_book_theme'
+
+html_theme_options = {
+    "repository_url": "https://github.com/edawu11/VeloEV",
+    "use_repository_button": True,
+    "show_navbar_depth": 2,
+}
 html_static_path = ['_static']
 nbsphinx_execute = 'never'
