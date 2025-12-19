@@ -1,6 +1,6 @@
-# VeloEV: Evaluation and Visualization for RNA Velocity benchmarking
+# VeloEV: Evaluation and Visualization for RNA Velocity methods benchmarking
 
-**VeloEV** (Velocity Evaluation) is a comprehensive Python toolkit designed for benchmarking, evaluating, and visualizing RNA velocity methods. It streamlines the workflow into three core modules: **Post-processing**, **Evaluation**, and **Visualization**.
+**VeloEV** is a comprehensive Python package designed for post processing, evaluating, and visualizing RNA velocity methods. It streamlines the workflow into three core modules: **Post-processing**, **Evaluation**, and **Visualization**.
 
 ![VeloEV Workflow Diagram](workflow.png)
 
@@ -21,17 +21,7 @@ pip install .
 ```
 ## 📖 Documentation & Tutorials
 
-We provide detailed documentation and step-by-step tutorials to help you get started.
-
-👉 Read the Docs: https://veloev.readthedocs.io/
-
-The tutorials cover:
-
-Post-processing: Postprocessing the adata.
-
-Evaluation: Running metrics on benchmarking datasets.
-
-Visualization: Plotting task and overall results.
+👉 We provide detailed documentation and step-by-step [tutorials](https://veloev.readthedocs.io/) to help you get started.
 
 For quick start, you can download the demo datasets via XXX.
 
