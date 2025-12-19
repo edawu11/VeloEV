@@ -2,6 +2,8 @@
 
 **VeloEV** (Velocity Evaluation) is a comprehensive Python toolkit designed for benchmarking, evaluating, and visualizing RNA velocity methods. It streamlines the workflow into three core modules: **Post-processing**, **Evaluation**, and **Visualization**.
 
+![VeloEV Workflow Diagram](workflow.png)
+
 ## 🚀 Features
 
 * **Post-processing**: Standardizes outputs from diverse RNA velocity methods into a unified format for consistent downstream analysis.
