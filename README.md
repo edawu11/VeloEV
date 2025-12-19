@@ -28,7 +28,7 @@ For quick start, you can download the demo datasets via XXX.
 ## 📚 Reference
 If you use VeloEV in your research, please cite our paper:
 
-Yida Wu, Chuihan Kong, Zhixiang Lin, Xiaobo Sun, Jin Liu. Comprehensive benchmarking of RNA velocity methods across single-cell datasets. Preprint. 2025.
+Yida Wu, Chuihan Kong, Xu Liao, Zhixiang Lin, Xiaobo Sun, Jin Liu. Comprehensive benchmarking of RNA velocity methods across single-cell datasets. Preprint. 2025.
 
 ## 📄 License
 
