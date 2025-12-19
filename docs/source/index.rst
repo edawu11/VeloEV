@@ -1,7 +1,7 @@
 Welcome to veloev's documentation!
 ==================================
 
-**veloev** is a toolkit for RNA velocity methods evaluation and visualization.
+**veloev** is a toolkit for RNA velocity methods benchmarking evaluation and visualization.
 
 .. toctree::
    :maxdepth: 2
