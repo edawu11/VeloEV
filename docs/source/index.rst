@@ -11,5 +11,11 @@ Welcome to VeloEV's documentation!
    tutorials/02_evaluation
    tutorials/03_visualization
 
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference:
 
+   api/postprocess
+   api/evaluation
+   api/visualization
 
