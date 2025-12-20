@@ -1,11 +1,11 @@
 VeloEV Documentation
 ===============================
 
+Welcome to VeloEV's documentation! VeloEV is a comprehensive Python package designed for benchmarking RNA velocity methods.
+
 .. image:: _static/workflow.png
    :alt: VeloEV Flow Chart
    :align: center
-
-Welcome to VeloEV's documentation! VeloEV is a comprehensive Python package designed for benchmarking RNA velocity methods.
 
 ===============================
 Quick Start

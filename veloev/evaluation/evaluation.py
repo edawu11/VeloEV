@@ -49,8 +49,7 @@ def run_evaluation(benchmark_info: dict, base_dir: str = './'):
     }
 
     # 2. Extract Data
-    # [FIX] 优先使用 'datasets_type'，这是你在 postprocess 中验证过的标准键名
-    # 如果只写 'tasks'，旧代码可能会出错
+
     names = benchmark_info.get('datasets_name')
     types = benchmark_info.get('tasks')
     
@@ -1713,26 +1712,19 @@ def calculate_stability_score(
     if score_df.empty:
         raise ValueError("No matching methods found in the evaluation file.")
 
-    # 3. Calculate Mean and Std across folds (assuming folds are columns 1 onwards)
-    # iloc[:, 1:] selects all columns after 'Method'
-    numeric_df = score_df.iloc[:, 1:]
-    means = numeric_df.mean(axis=1).values
-    stds = numeric_df.std(axis=1).values
+    mean = score_df.iloc[:, 1:].mean(axis=1).values
+    std = score_df.iloc[:, 1:].std(axis=1).values
 
-    # 4. Min-Max Scaling
-    # Handle edge case where max == min (e.g., only 1 method or identical scores)
-    ptp_mean = np.ptp(means) # Peak-to-peak (max - min)
-    ptp_std = np.ptp(stds)
-    
-    # Avoid division by zero if all values are identical
-    denom_mean = ptp_mean if ptp_mean > 1e-9 else 1.0
-    denom_std = ptp_std if ptp_std > 1e-9 else 1.0
+    if metric in ['cbdir','tsc','pr']:
+        Warning("Scaling mean to [0,1] assuming the input metric is in [-1,1].")
+        mean_scaled = (mean + 1) / 2
+        std_scaled = std # theoretical upper bound is 1 when input metric in [-1,1]
+    elif metric in ['icvcoh', 'cto', 'dcor']:
+        Warning("Not scaling mean, assuming the input metric is already in [0,1].")
+        mean_scaled = mean
+        std_scaled = std * 2 # theoretical upper bound is 0.5 when input metric in [0,1]
 
-    mean_scaled = (means - np.min(means)) / denom_mean
-    std_scaled = (stds - np.min(stds)) / denom_std
-
-    # 5. Calculate Stability Score (SS)
-    # Higher Mean is better; Lower Std is better (hence 1 - std_scaled)
+    # calculate SS scores
     ss = 0.5 * ((mean_scaled)**2 + (1 - std_scaled)**2)
 
     # 6. Create Result DataFrame

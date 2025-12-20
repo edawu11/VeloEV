@@ -24,10 +24,10 @@ def plot_task(
     # --- 0. Configuration ---
     if color_palette is None:
         color_palette = {
-            'bar1': "#af7677", 
-            'bar2': "#72acbc", 
-            'rank_low': "#ecd7a3", 
-            'rank_high': "#e68b40"
+            'bar1': "#5b7e91",
+            'bar2': "#e4ab9b",
+            'rank_low': "#bf794e",
+            'rank_high': "#e6b422"
         }
     
     TYPE_CONFIG = {
@@ -52,7 +52,7 @@ def plot_task(
         'simulation': {
             'title': 'Simulation',
             'metrics': ['dcor', 'pr'], 
-            'labels': ['Dist Corr', 'Pearson'],
+            'labels': ['dCor', 'Pearson'],
             'valid_ds_types': ['simulation']
         },
         'seq_depth_directional': {
@@ -321,12 +321,12 @@ def plot_overall(
     
     # --- 0. Configuration ---
     DEFAULT_TYPE_COLORS = {
-        'directional': '#76b5c5',      # Blue
-        'temporal': '#eab676',         # Orange
-        'negative_control': '#878787', # Grey
-        'simulation': '#af7677',        # Red
-        'seq_depth_directional': "#58a977", # Light Blue
-        'seq_depth_temporal': "#87388b"   # Light Red
+        'directional': '#ae7c58', 
+        'temporal': '#6b6f59', 
+        'negative_control': '#6c848d',
+        'seq_depth_directional': '#95859c',
+        'simulation': '#a86965',
+        'seq_depth_temporal': "#839b5c"
     }
     
     if type_colors:
@@ -360,7 +360,7 @@ def plot_overall(
         'simulation': {
             'title': 'Simulation',
             'metrics': ['dcor', 'pr'], 
-            'labels': ['Dist Corr', 'Pearson'],
+            'labels': ['dCor', 'Pearson'],
             'valid_ds_types': ['simulation']
         },
         'seq_depth_directional': {
