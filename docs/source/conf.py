@@ -51,7 +51,21 @@ html_theme = 'sphinx_book_theme'
 html_theme_options = {
     "repository_url": "https://github.com/edawu11/VeloEV",
     "use_repository_button": True,
-    "show_navbar_depth": 2,
+    "show_navbar_depth": 1,
+    "collapse_navigation": False,
+    "use_edit_page_button": True,
+    "path_to_docs": "docs/source"
 }
-html_static_path = ['_static']
+
+html_sidebars = {
+    "**": [
+        "navbar-logo.html",
+        "search-field.html",
+        "sbt-sidebar-nav.html",
+    ]
+}
+
+html_static_path = ["_static"]
+html_logo = "_static/logo.png"
+html_title = "VeloEV"
 nbsphinx_execute = 'never'
