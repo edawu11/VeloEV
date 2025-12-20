@@ -21,9 +21,7 @@ pip install .
 ```
 ## 📖 Documentation & Tutorials
 
-👉 We provide detailed documentation and step-by-step [tutorials](https://veloev.readthedocs.io/) to help you get started.
-
-For quick start, you can download the demo datasets via XXX.
+👉 Detailed documentation and step-by-step [tutorials](https://veloev.readthedocs.io/en/latest/) are available to help you get started. For a quick start, you can download the demo datasets via XXX.
 
 ## 📚 Reference
 If you use VeloEV in your research, please cite our paper:
