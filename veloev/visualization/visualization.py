@@ -151,7 +151,7 @@ def plot_task(
     nrows = len(sorted_methods)
     
     # Layout
-    width_ratios = [1.5, 1.5, 0.6, 1.5, 0.6, 0.7]
+    width_ratios = [1.5, 1.5, 0.4, 1.5, 0.4, 0.4]
     fig_width = sum(width_ratios) * 1.5
     
     fig, axes = plt.subplots(nrows=nrows, ncols=6, 
@@ -245,7 +245,7 @@ def plot_task(
         norm_ov = (ov_val - 1) / (len(sorted_methods) - 1 + 1e-9)
         rect = plt.Rectangle((OFFSET, OFFSET), BOX_SIZE, BOX_SIZE, color=rank_cmap(norm_ov), ec='white', lw=1)
         ax_ovr.add_patch(rect)
-        ax_ovr.text(0.5, 0.5, str(ov_val), va='center', ha='center', fontsize=12)
+        ax_ovr.text(0.5, 0.5, str(ov_val), va='center', ha='center', fontsize=10)
         ax_ovr.set_axis_off()
         ax_ovr.plot([0, 1], [0, 0], color='lightgray', lw=0.5, transform=ax_ovr.transAxes, clip_on=False)
 
@@ -486,7 +486,7 @@ def plot_overall(
     W_BAR1 = 1.5
     W_BAR2 = 1.5
     W_RANK = 0.6
-    W_OVERALL = 0.7
+    W_OVERALL = 0.6
     
     width_ratios = [W_METHOD] + [W_BAR1, W_BAR2, W_RANK] * n_types + [W_OVERALL]
     total_cols = 1 + 3 * n_types + 1
@@ -597,7 +597,7 @@ def plot_overall(
         norm_f = (final_r - 1) / (len(sorted_methods) - 1 + 1e-9)
         rect = plt.Rectangle((OFFSET, OFFSET), BOX_SIZE, BOX_SIZE, color=rank_cmap(norm_f), ec='white', lw=1)
         ax_final.add_patch(rect)
-        ax_final.text(0.5, 0.5, str(final_r), va='center', ha='center', fontsize=11)
+        ax_final.text(0.5, 0.5, str(final_r), va='center', ha='center', fontsize=10)
         ax_final.set_axis_off()
         ax_final.plot([0, 1], [0, 0], color='lightgray', lw=0.5, transform=ax_final.transAxes, clip_on=False)
 
