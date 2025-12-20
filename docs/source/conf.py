@@ -66,9 +66,7 @@ html_theme_options = {
     "repository_url": "https://github.com/edawu11/VeloEV",
     "use_repository_button": True,
     "show_navbar_depth": 1,
-    "collapse_navigation": False,
-    "use_edit_page_button": True,
-    "path_to_docs": "docs/source"
+    "collapse_navigation": False
 }
 
 html_sidebars = {
