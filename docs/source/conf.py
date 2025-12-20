@@ -41,6 +41,20 @@ exclude_patterns = [
     '.*',
     '**/.*',
 ]
+
+autodoc_mock_imports = [
+    "anndata",
+    "scvelo",
+    "scanpy",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "seaborn",
+    "scipy",
+    "sklearn",
+    "tqdm"
+]
+
 nbsphinx_allow_errors = True
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
