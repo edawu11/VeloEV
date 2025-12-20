@@ -3,3 +3,4 @@ sphinx_rtd_theme
 nbsphinx
 ipykernel
 sphinx-book-theme
+sphinx-autodoc-typehints
