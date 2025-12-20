@@ -15,7 +15,9 @@ Welcome to veloev's documentation!
    :maxdepth: 2
    :caption: API Reference:
 
-   modules
+   api/preprocessing
+   api/evaluation
+   api/visualization
 
 Indices and tables
 ==================
