@@ -1,4 +1,4 @@
-Welcome to veloev's documentation!
+Welcome to VeloEV's documentation!
 ==================================
 
 **VeloEV** is a comprehensive Python package designed for post processing, evaluating, and visualizing RNA velocity methods. It streamlines the workflow into three core modules: **Post-processing**, **Evaluation**, and **Visualization**.
@@ -15,7 +15,7 @@ Welcome to veloev's documentation!
    :maxdepth: 2
    :caption: API Reference:
 
-   api/preprocessing
+   api/postprocess
    api/evaluation
    api/visualization
 
