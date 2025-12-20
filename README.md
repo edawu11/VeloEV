@@ -7,7 +7,7 @@
 ## 🚀 Features
 
 * **Post-processing**: Standardizes outputs from diverse RNA velocity methods into a unified format for consistent downstream analysis.
-* **Evaluation**: Provides comprehensive metrics to assess velocity accuracy, including **Directional Consistency** (CBDir, ICVCoh), **Temporal Precision** (CTO, TSC), and **Negative Control Robustness** (STS, NTE).
+* **Evaluation**: Provides comprehensive metrics to assess RNA velocity and cell-specific latent time, including **Directional Consistency** (CBDir, ICVCoh), **Temporal Precision** (CTO, TSC), and **Negative Control Robustness** (STS, NTE).
 * **Visualization**: Generates figures for both specific task analysis and aggregated global benchmark summaries.
 
 ## 📦 Installation
