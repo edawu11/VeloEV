@@ -8,7 +8,7 @@ Welcome to VeloEV's documentation! VeloEV is a comprehensive Python package desi
    :align: center
 
 ===============================
-Installation Guide
+📦 Installation Guide
 ===============================
 
 You can install `veloev` by cloning the repository and installing it via pip.
@@ -20,7 +20,7 @@ You can install `veloev` by cloning the repository and installing it via pip.
    pip install .
 
 ===============================
-Quick Start
+🚀 Quick Start
 ===============================
 
 For RNA velocity method implementation details, please visit our `GitHub <https://github.com/edawu11/Benchmark-RNA-Velocity.git>`_ repository.
@@ -28,7 +28,7 @@ For RNA velocity method implementation details, please visit our `GitHub <https:
 To quickly start the evaluation and visualization, you can download demo data covering four methods and three datasets via this `link <https://drive.google.com/drive/folders/1GWvnG897EhheAcX-oKjMq_z5d9Mrd4Ln?usp=sharing>`_.
 
 ===============================
-Tutorials
+📚 Tutorials
 ===============================
 
 Explore our comprehensive tutorials to get started with VeloEV:
@@ -40,3 +40,11 @@ Explore our comprehensive tutorials to get started with VeloEV:
    tutorials/01_postprocessing
    tutorials/02_evaluation
    tutorials/03_visualization
+
+===============================
+📖 Reference
+===============================
+
+If you use VeloEV in your research, please cite our paper:
+
+Yida Wu, Chuihan Kong, Xu Liao, Zhixiang Lin, Xiaobo Sun, Jin Liu. Comprehensive benchmarking of RNA velocity methods across single-cell datasets. Preprint. 2025.

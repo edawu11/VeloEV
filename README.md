@@ -19,11 +19,11 @@ git clone https://github.com/edawu11/VeloEV.git
 cd VeloEV
 pip install .
 ```
-## 📖 Documentation & Tutorials
+## 📚 Documentation & Tutorials
 
 👉 Detailed documentation and step-by-step [tutorials](https://veloev.readthedocs.io/en/latest/) are available to help you get started. For a quick start, you can download the demo datasets via the [link](https://drive.google.com/drive/folders/1GWvnG897EhheAcX-oKjMq_z5d9Mrd4Ln?usp=sharing).
 
-## 📚 Reference
+## 📖 Reference
 If you use VeloEV in your research, please cite our paper:
 
 Yida Wu, Chuihan Kong, Xu Liao, Zhixiang Lin, Xiaobo Sun, Jin Liu. Comprehensive benchmarking of RNA velocity methods across single-cell datasets. Preprint. 2025.
