@@ -324,12 +324,13 @@ def postprocess(
             gc.collect()
 
         # 4. Compute Velocity Graph
+        # When calculating CBDir, unitvelo and cell2fate use the graph settings defined in their 
+        # original papers or their own graph formulations; otherwise, scv.tl.velocity_graph 
+        # is used to calculate the graph with default settings.
         if method in ["unitvelo_uni", "unitvelo_ind"] and flag_d:
             scv.tl.velocity_graph(adata, vkey=vkey, sqrt_transform=True, n_jobs=n_jobs, show_progress_bar=False)
         elif method == "cell2fate" and flag_d:
-            # cell2fate usually computes graph internally
-            if 'Velocity_graph' in adata.uns:
-                adata.uns['cell2fate_velocity_graph'] = adata.uns['Velocity_graph']
+            adata.uns[f'{method}_velocity_graph'] = adata.uns['Velocity_graph']
         else:
             scv.tl.velocity_graph(adata, vkey=vkey, sqrt_transform=False, n_jobs=n_jobs, show_progress_bar=False)
         gc.collect()
