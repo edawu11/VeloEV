@@ -213,7 +213,7 @@ def run_postprocessing(benchmark_info: dict, base_dir: str = './', n_jobs: int =
                 result_path=result_path,
                 n_jobs=n_jobs
             )
-            # tqdm.write(f"✅ Successfully processed {ds_name}.")
+            tqdm.write(f"✅ Successfully processed {ds_name}.")
         except Exception as e:
             # Use tqdm.write so the error message doesn't break the progress bar layout
             tqdm.write(f"❌ Error processing {ds_name}: {str(e)}")
