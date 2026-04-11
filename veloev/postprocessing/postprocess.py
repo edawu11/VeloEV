@@ -294,7 +294,7 @@ def postprocess(
     def _extract_and_save(method: str, vkey: str, fold: Union[int, str]):
         """Internal helper to process a single method and fold."""
         file_name = f"adata_run_{method}_{fold}.h5ad"
-        file_path = result_path / file_name
+        file_path = result_path / "processed" / file_name
 
         if not file_path.exists():
             warnings.warn(f"File {file_path} not found. Skipping.")
