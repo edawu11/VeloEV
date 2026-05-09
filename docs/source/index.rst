@@ -25,7 +25,7 @@ You can install `veloev` by cloning the repository and installing it via pip.
 
 For RNA velocity method implementation details, please visit our `GitHub <https://github.com/edawu11/Benchmark-RNA-Velocity.git>`_ repository.
 
-To quickly start the evaluation and visualization, you can download demo data covering four methods and three datasets via this `link <https://drive.google.com/drive/folders/1GWvnG897EhheAcX-oKjMq_z5d9Mrd4Ln?usp=sharing>`_.
+To quickly start the evaluation and visualization, you can download demo data covering four methods and three datasets via this `link <https://drive.google.com/file/d/1SfYnvxdxOAkAw3AefMBsnWgvDz6IK4ey/view?usp=drive_link>`_.
 
 ===============================
 📚 Tutorials
