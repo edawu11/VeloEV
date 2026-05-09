@@ -6,6 +6,71 @@ from pathlib import Path
 from typing import List, Dict, Any, Union, Optional
 
 
+BIPOLAR_METRICS = {'cbdir', 'tsc', 'pr'}
+RANK_AGG_METRICS = {'ees'}
+
+
+def _store_dataset_metric(storage: Dict[str, Dict[str, List[float]]], metric: str, df: pd.DataFrame, methods: List[str]) -> None:
+    df = df[df['Method'].isin(methods)]
+    dataset_values = {}
+
+    for _, row in df.iterrows():
+        meth = row['Method']
+        fold_scores = row.iloc[1:].dropna().astype(float).values
+        if len(fold_scores) > 0:
+            dataset_values[meth] = float(np.mean(fold_scores))
+
+    if not dataset_values:
+        return
+
+    if metric in RANK_AGG_METRICS:
+        dataset_values = pd.Series(dataset_values).rank(ascending=False, method='min').to_dict()
+
+    for meth, value in dataset_values.items():
+        storage[metric][meth].append(float(value))
+
+
+def _summary_rank(values: pd.Series, metric: str) -> pd.Series:
+    return values.rank(ascending=metric in RANK_AGG_METRICS, method='min').astype(int)
+
+
+def _to_visual_stats(metric: str, raw_mean: float, raw_std: float, n_methods: int) -> tuple:
+    if metric in BIPOLAR_METRICS:
+        return np.clip((raw_mean + 1) / 2, 0, 1), raw_std / 2
+
+    return raw_mean, raw_std
+
+
+def _add_visual_stats(df_stats: pd.DataFrame, metrics: List[str]) -> pd.DataFrame:
+    for metric in metrics:
+        if metric in RANK_AGG_METRICS:
+            values = df_stats[f'{metric}_mean'].astype(float)
+            min_val = values.min()
+            max_val = values.max()
+            denom = max_val - min_val
+
+            if denom == 0:
+                df_stats[f'{metric}_vis_mean'] = 1.0
+                df_stats[f'{metric}_vis_std'] = 0.0
+            else:
+                df_stats[f'{metric}_vis_mean'] = (max_val - values) / denom
+                df_stats[f'{metric}_vis_std'] = df_stats[f'{metric}_std'].astype(float) / denom
+        else:
+            visual_values = df_stats.apply(
+                lambda row: _to_visual_stats(
+                    metric,
+                    row[f'{metric}_mean'],
+                    row[f'{metric}_std'],
+                    len(df_stats)
+                ),
+                axis=1
+            )
+            df_stats[f'{metric}_vis_mean'] = [v[0] for v in visual_values]
+            df_stats[f'{metric}_vis_std'] = [v[1] for v in visual_values]
+
+    return df_stats
+
+
 def plot_task(
     benchmark_info: Dict[str, Any], 
     plot_type: str = 'directional',
@@ -45,8 +110,8 @@ def plot_task(
         },
         'negative_control': {
             'title': 'Negative control robustness',
-            'metrics': ['sts', 'nte'], 
-            'labels': ['STS', 'NTE'],
+            'metrics': ['sts', 'ees'], 
+            'labels': ['STS', 'EES'],
             'valid_ds_types': ['negative_control']
         },
         'simulation': {
@@ -78,8 +143,6 @@ def plot_task(
     type_title = cfg['title']
     valid_types = cfg['valid_ds_types']
     
-    BIPOLAR_METRICS = ['cbdir', 'tsc', 'pr']
-
     # --- 2. Load Data ---
     names_list = benchmark_info.get('datasets_name')
     types_list = benchmark_info.get('tasks')
@@ -95,7 +158,7 @@ def plot_task(
         print(f"No datasets found for plot_type: {plot_type}.")
         return
 
-    # Storage (Store RAW values)
+    # Store per-dataset summaries. EES stores per-dataset ranks instead of raw values.
     storage = {m: {meth: [] for meth in methods} for m in metrics}
 
     for metric in metrics:
@@ -105,15 +168,7 @@ def plot_task(
                 continue
             
             df = pd.read_csv(file_path)
-            df = df[df['Method'].isin(methods)]
-            
-            for _, row in df.iterrows():
-                meth = row['Method']
-                fold_scores = row.iloc[1:].dropna().astype(float).values
-                
-                if len(fold_scores) > 0:
-                    ds_mean = np.mean(fold_scores)
-                    storage[metric][meth].append(ds_mean)
+            _store_dataset_metric(storage, metric, df, methods)
 
     # --- 3. Compute Stats ---
     method_stats = []
@@ -139,11 +194,12 @@ def plot_task(
 
     # Ranks & Sort
     for metric in metrics:
-        df_stats[f'{metric}_rank'] = df_stats[f'{metric}_mean'].rank(ascending=False, method='min').astype(int)
+        df_stats[f'{metric}_rank'] = _summary_rank(df_stats[f'{metric}_mean'], metric)
 
     rank_cols = [f'{m}_rank' for m in metrics]
     df_stats['overall_rank'] = df_stats[rank_cols].mean(axis=1).rank(ascending=True, method='min').astype(int)
 
+    df_stats = _add_visual_stats(df_stats, metrics)
     df_stats = df_stats.sort_values(by='overall_rank', ascending=True).reset_index(drop=True)
     sorted_methods = df_stats['Method'].tolist()
 
@@ -188,13 +244,8 @@ def plot_task(
             rank = int(row[f'{metric}_rank'])
 
             # -- Calculate Visual Bar Length --
-            if metric in BIPOLAR_METRICS:
-                vis_mean = (raw_mean + 1) / 2
-                vis_mean = np.clip(vis_mean, 0, 1)
-                vis_std = raw_std / 2
-            else:
-                vis_mean = raw_mean
-                vis_std = raw_std
+            vis_mean = row[f'{metric}_vis_mean']
+            vis_std = row[f'{metric}_vis_std']
 
             # -- Bar Plot --
             current_bar_color = color_palette['bar1'] if idx == 0 else color_palette['bar2']
@@ -212,7 +263,7 @@ def plot_task(
             
             ax_bar.set_xlim(0, 1.25); ax_bar.set_ylim(-0.5, 0.5); ax_bar.axis('off')
             
-            # Text Display (RAW Value)
+            # Text display: raw aggregate for standard metrics, average dataset rank for EES.
             text_x_pos = min(vis_mean + (vis_std if num_datasets > 1 else 0) + 0.05, 1.15)
             ax_bar.text(text_x_pos, 0, f"{raw_mean:.2f}", va='center', fontsize=9)
             
@@ -353,8 +404,8 @@ def plot_overall(
         },
         'negative_control': {
             'title': 'Negative Control Robustness',
-            'metrics': ['sts', 'nte'], 
-            'labels': ['STS', 'NTE'],
+            'metrics': ['sts', 'ees'], 
+            'labels': ['STS', 'EES'],
             'valid_ds_types': ['negative_control']
         },
         'simulation': {
@@ -376,9 +427,6 @@ def plot_overall(
             'valid_ds_types': ['seq_depth_temporal', 'seq_depth_directional_temporal']
         }
     }
-
-    # Metrics that need visual scaling [-1, 1] -> [0, 1]
-    BIPOLAR_METRICS = ['cbdir', 'tsc', 'pr']
 
     # Validate Inputs
     for t in include_types:
@@ -414,16 +462,9 @@ def plot_overall(
                 fpath = p / f"{metric}_df.csv"
                 if not fpath.exists(): continue
                 df = pd.read_csv(fpath)
-                df = df[df['Method'].isin(methods)]
-                for _, row in df.iterrows():
-                    meth = row['Method']
-                    vals = row.iloc[1:].dropna().astype(float).values
-                    if len(vals) > 0:
-                        val = np.mean(vals)
-                        # [CHANGE] Store RAW value
-                        temp_storage[metric][meth].append(val)
+                _store_dataset_metric(temp_storage, metric, df, methods)
 
-        type_scores_for_ranking = {meth: [] for meth in methods}
+        type_metric_ranks = {meth: [] for meth in methods}
 
         for meth in methods:
             stats = {}
@@ -437,17 +478,52 @@ def plot_overall(
                 
                 stats[f'm{i+1}_mean'] = mean
                 stats[f'm{i+1}_std'] = std
-                
-                # For ranking, higher raw value is better
-                type_scores_for_ranking[meth].append(mean)
             
             method_data[meth][dtype] = stats
 
-        avg_scores = [np.mean(type_scores_for_ranking[m]) for m in methods]
-        ranks = pd.Series(avg_scores).rank(ascending=False, method='min').astype(int)
+        for i, metric in enumerate(metrics):
+            metric_values = pd.Series(
+                {meth: method_data[meth][dtype].get(f'm{i+1}_mean', 0.0) for meth in methods}
+            )
+            metric_ranks = _summary_rank(metric_values, metric)
+            for meth in methods:
+                type_metric_ranks[meth].append(metric_ranks[meth])
+
+        avg_ranks = [np.mean(type_metric_ranks[m]) for m in methods]
+        ranks = pd.Series(avg_ranks).rank(ascending=True, method='min').astype(int)
         
         for meth, r in zip(methods, ranks):
             method_data[meth][dtype]['rank'] = r
+
+        for i, metric in enumerate(metrics):
+            values = pd.Series(
+                {meth: method_data[meth][dtype].get(f'm{i+1}_mean', 0.0) for meth in methods}
+            )
+
+            if metric in RANK_AGG_METRICS:
+                min_val = values.min()
+                max_val = values.max()
+                denom = max_val - min_val
+
+                for meth in methods:
+                    if denom == 0:
+                        method_data[meth][dtype][f'm{i+1}_vis_mean'] = 1.0
+                        method_data[meth][dtype][f'm{i+1}_vis_std'] = 0.0
+                    else:
+                        method_data[meth][dtype][f'm{i+1}_vis_mean'] = (max_val - values[meth]) / denom
+                        method_data[meth][dtype][f'm{i+1}_vis_std'] = (
+                            method_data[meth][dtype].get(f'm{i+1}_std', 0.0) / denom
+                        )
+            else:
+                for meth in methods:
+                    vis_mean, vis_std = _to_visual_stats(
+                        metric,
+                        method_data[meth][dtype].get(f'm{i+1}_mean', 0.0),
+                        method_data[meth][dtype].get(f'm{i+1}_std', 0.0),
+                        len(methods)
+                    )
+                    method_data[meth][dtype][f'm{i+1}_vis_mean'] = vis_mean
+                    method_data[meth][dtype][f'm{i+1}_vis_std'] = vis_std
 
     # --- 2. Build DataFrame ---
     rows = []
@@ -459,8 +535,12 @@ def plot_overall(
                 d = method_data[meth][dtype]
                 row[f'{dtype}_m1_mean'] = d.get('m1_mean', 0)
                 row[f'{dtype}_m1_std'] = d.get('m1_std', 0)
+                row[f'{dtype}_m1_vis_mean'] = d.get('m1_vis_mean', 0)
+                row[f'{dtype}_m1_vis_std'] = d.get('m1_vis_std', 0)
                 row[f'{dtype}_m2_mean'] = d.get('m2_mean', 0)
                 row[f'{dtype}_m2_std'] = d.get('m2_std', 0)
+                row[f'{dtype}_m2_vis_mean'] = d.get('m2_vis_mean', 0)
+                row[f'{dtype}_m2_vis_std'] = d.get('m2_vis_std', 0)
                 row[f'{dtype}_rank'] = d.get('rank', len(methods))
                 rank_list.append(row[f'{dtype}_rank'])
             else:
@@ -525,55 +605,41 @@ def plot_overall(
             # Retrieve Raw Data
             m1_raw = row[f'{dtype}_m1_mean']
             m1_std_raw = row[f'{dtype}_m1_std']
+            m1_vis = row[f'{dtype}_m1_vis_mean']
+            m1_std_vis = row[f'{dtype}_m1_vis_std']
             m2_raw = row[f'{dtype}_m2_mean']
             m2_std_raw = row[f'{dtype}_m2_std']
+            m2_vis = row[f'{dtype}_m2_vis_mean']
+            m2_std_vis = row[f'{dtype}_m2_vis_std']
             rank = int(row[f'{dtype}_rank'])
             
             has_error_bar = type_ds_counts[dtype] > 1
 
             # --- Process Metric 1 (Bar 1) ---
-            metric_name_1 = metrics_list[0]
-            if metric_name_1 in BIPOLAR_METRICS:
-                vis_m1 = (m1_raw + 1) / 2
-                vis_m1 = np.clip(vis_m1, 0, 1)
-                vis_std1 = m1_std_raw / 2
-            else:
-                vis_m1 = m1_raw
-                vis_std1 = m1_std_raw
-
             ax_b1 = axes[i, base_col]
-            xerr1 = vis_std1 if has_error_bar else None
+            xerr1 = m1_std_vis if has_error_bar else None
             cap1 = 3 if has_error_bar else 0
             
-            ax_b1.barh(0, vis_m1, xerr=xerr1, color=current_color, height=0.6, 
+            ax_b1.barh(0, m1_vis, xerr=xerr1, color=current_color, height=0.6, 
                        capsize=cap1, edgecolor='none', error_kw={'elinewidth': 1, 'ecolor': 'black'})
             ax_b1.set_xlim(0, 1.25); ax_b1.set_ylim(-0.5, 0.5); ax_b1.axis('off')
             
-            # Text: Display RAW value
-            text_x1 = min(vis_m1 + (vis_std1 if has_error_bar else 0) + 0.05, 1.15)
+            # Text display: raw aggregate for standard metrics, average dataset rank for EES.
+            text_x1 = min(m1_vis + (m1_std_vis if has_error_bar else 0) + 0.05, 1.15)
             ax_b1.text(text_x1, 0, f"{m1_raw:.2f}", va='center', fontsize=9)
             ax_b1.plot([0, 1], [0, 0], color='lightgray', lw=0.5, transform=ax_b1.transAxes, clip_on=False)
 
             # --- Process Metric 2 (Bar 2) ---
-            metric_name_2 = metrics_list[1]
-            if metric_name_2 in BIPOLAR_METRICS:
-                vis_m2 = (m2_raw + 1) / 2
-                vis_m2 = np.clip(vis_m2, 0, 1)
-                vis_std2 = m2_std_raw / 2
-            else:
-                vis_m2 = m2_raw
-                vis_std2 = m2_std_raw
-
             ax_b2 = axes[i, base_col + 1]
-            xerr2 = vis_std2 if has_error_bar else None
+            xerr2 = m2_std_vis if has_error_bar else None
             cap2 = 3 if has_error_bar else 0
             
-            ax_b2.barh(0, vis_m2, xerr=xerr2, color=current_color, height=0.6, 
+            ax_b2.barh(0, m2_vis, xerr=xerr2, color=current_color, height=0.6, 
                        capsize=cap2, edgecolor='none', error_kw={'elinewidth': 1, 'ecolor': 'black'})
             ax_b2.set_xlim(0, 1.25); ax_b2.set_ylim(-0.5, 0.5); ax_b2.axis('off')
             
-            # Text: Display RAW value
-            text_x2 = min(vis_m2 + (vis_std2 if has_error_bar else 0) + 0.05, 1.15)
+            # Text display: raw aggregate for standard metrics, average dataset rank for EES.
+            text_x2 = min(m2_vis + (m2_std_vis if has_error_bar else 0) + 0.05, 1.15)
             ax_b2.text(text_x2, 0, f"{m2_raw:.2f}", va='center', fontsize=9)
             ax_b2.plot([0, 1], [0, 0], color='lightgray', lw=0.5, transform=ax_b2.transAxes, clip_on=False)
             

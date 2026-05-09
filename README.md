@@ -7,7 +7,7 @@
 ## 🚀 Features
 
 * **Post-processing**: Standardizes outputs from diverse RNA velocity methods into a unified format for consistent downstream analysis.
-* **Evaluation**: Provides comprehensive metrics to assess RNA velocity and cell-specific latent time, including **Directional Consistency** (CBDir, ICVCoh), **Temporal Precision** (CTO, TSC), and **Negative Control Robustness** (STS, NTE).
+* **Evaluation**: Provides comprehensive metrics to assess RNA velocity and cell-specific latent time, including **Directional Consistency** (CBDir, ICVCoh), **Temporal Precision** (CTO, TSC), and **Negative Control Robustness** (STS, EES).
 * **Visualization**: Generates figures for both specific task analysis and aggregated global benchmark summaries.
 
 ## 📦 Installation
@@ -21,7 +21,7 @@ pip install .
 ```
 ## 📚 Documentation & Tutorials
 
-👉 Detailed documentation and step-by-step [tutorials](https://veloev.readthedocs.io/en/latest/) are available to help you get started. For a quick start, you can download the demo datasets via the [link](https://drive.google.com/drive/folders/1GWvnG897EhheAcX-oKjMq_z5d9Mrd4Ln?usp=sharing).
+👉 Detailed documentation and step-by-step [tutorials](https://veloev.readthedocs.io/en/latest/) are available to help you get started. For a quick start, you can download the demo datasets via the [link](https://drive.google.com/file/d/1SfYnvxdxOAkAw3AefMBsnWgvDz6IK4ey/view?usp=drive_link).
 
 ## 📖 Reference
 If you use VeloEV in your research, please cite our paper:

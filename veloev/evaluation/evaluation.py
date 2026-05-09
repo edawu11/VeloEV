@@ -39,7 +39,7 @@ def run_evaluation(benchmark_info: dict, base_dir: str = './'):
         'directional': ['cbdir', 'icvcoh'],
         'directional_temporal': ['cbdir', 'icvcoh', 'cto', 'tsc'],
         'temporal': ['cto', 'tsc'],
-        'negative_control': ['sts', 'nte'],
+        'negative_control': ['sts', 'ees'],
         'simulation': ['dcor', 'pr'],
         
         # Seq Depth Types (Stability Analysis)
@@ -137,8 +137,9 @@ def single_metric(
             - 'tsc': Temporal Spearman Correlation.
             - 'dcor': Distance Correlation.
             - 'pearson': Pearson Correlation.
-            - 'nte': Normalized Entropy.
             - 'sts': Self-Transition Score.
+            - 'ees': Effective Entropy Score.
+            - 'nte': Normalized Entropy.
             Defaults to 'cbdir'.
         post_path (Union[str, Path], optional): Path to directory with processed pickle files. 
             Defaults to './postprocess/'.
@@ -219,6 +220,13 @@ def single_metric(
         )
     elif metric == 'nte':
         return calculate_nte(
+            methods=methods,
+            post_path=post_path,
+            evl_path=evl_path,
+            k_fold=k_fold
+        )
+    elif metric == 'ees':
+        return calculate_ees(
             methods=methods,
             post_path=post_path,
             evl_path=evl_path,
@@ -1175,6 +1183,173 @@ def calculate_nte(
         
     return nte_df
 
+def ees_score_sparse(T: Union[np.ndarray, csr_matrix], mass_trim: float = 0.95) -> float:
+    """
+    Computes the mean Effective Entropy Score (EES) across rows of a
+    transition matrix.
+
+    For each row:
+      1. Convert row to probabilities over its nonzero entries.
+      2. Sort probabilities in descending order.
+      3. Keep the smallest number of entries whose cumulative mass >= mass_trim.
+      4. Renormalize the retained probabilities.
+      5. Compute EES = exp(H), where H = -sum p log p.
+      6. Ignore the row if EES < 1.
+
+    Args:
+        T (Union[np.ndarray, csr_matrix]): Cell-cell transition matrix.
+            Sparse or dense matrix. Will be converted to CSR if needed.
+        mass_trim (float, optional): Mass threshold in (0, 1]. Retain the
+            smallest number of largest probabilities whose cumulative sum
+            reaches this value. Defaults to 0.95.
+
+    Returns:
+        float: Mean EES score over valid rows. Returns np.nan if no valid rows.
+    """
+
+    if not (0 < mass_trim <= 1):
+        raise ValueError("mass_trim must be in (0, 1].")
+
+    # 1. Ensure Sparse CSR Format
+    if not issparse(T):
+        T = csr_matrix(T)
+    else:
+        T = T.tocsr()
+
+    scores = []
+
+    # 2. Row-wise EES Calculation
+    for i in range(T.shape[0]):
+        start, end = T.indptr[i], T.indptr[i + 1]
+        row = T.data[start:end]
+
+        if row.size == 0:
+            continue
+
+        row_sum = row.sum()
+        if row_sum <= 0:
+            continue
+
+        # Normalize row in case it is not perfectly row-stochastic
+        probs = row.astype(np.float64, copy=True) / row_sum
+
+        # Sort probabilities in descending order
+        probs = np.sort(probs)[::-1]
+
+        # Keep the smallest number of entries whose cumulative mass >= mass_trim
+        cumsum_probs = np.cumsum(probs)
+        n_keep = np.searchsorted(cumsum_probs, mass_trim, side="left") + 1
+        probs_trim = probs[:n_keep]
+
+        trim_sum = probs_trim.sum()
+        if trim_sum <= 0:
+            continue
+
+        # Renormalize after trimming
+        probs_trim = probs_trim / trim_sum
+
+        # Compute entropy and EES
+        probs_trim = probs_trim[probs_trim > 0]
+        if probs_trim.size == 0:
+            continue
+
+        entropy = -np.sum(probs_trim * np.log(probs_trim))
+        ees = np.exp(entropy)
+
+        if ees < 1:
+            continue
+
+        scores.append(ees)
+
+    return float(np.mean(scores)) if scores else np.nan
+
+def calculate_ees(
+    methods: List[str],
+    post_path: Union[str, Path],
+    evl_path: Union[str, Path],
+    k_fold: int,
+    mass_trim: float = 0.95,
+    save: bool = True
+) -> pd.DataFrame:
+    """
+    Calculates the Effective Entropy Score (EES) for trajectory inference methods.
+
+    EES evaluates the effective number of retained transition probabilities
+    after trimming each row of the transition matrix to a fixed cumulative mass.
+    Larger values indicate that transition probability mass is distributed over
+    more neighbors, whereas smaller values indicate more concentrated transitions.
+
+    Args:
+        methods (List[str]): List of velocity methods to evaluate.
+        post_path (Union[str, Path]): Directory containing the processed pickle files.
+        evl_path (Union[str, Path]): Directory where the result CSV will be saved.
+        k_fold (int): Number of cross-validation folds. Set to 0 for full data.
+        mass_trim (float, optional): Cumulative probability mass retained for
+            EES calculation. Defaults to 0.95.
+        save (bool, optional): Whether to save the resulting DataFrame to CSV.
+            Defaults to True.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing EES scores for each method and fold.
+    """
+
+    post_path = Path(post_path)
+    evl_path = Path(evl_path)
+
+    ees_records = {}
+
+    def _process_single_fold(method: str, fold: Union[int, str]) -> float:
+        """Internal helper to compute EES for a single method and fold."""
+
+        file_path = post_path / f"{method}_{fold}.pkl"
+
+        if not file_path.exists():
+            raise FileNotFoundError(
+                f"Processed data for {method} fold {fold} not found at {file_path}"
+            )
+
+        with open(file_path, "rb") as file:
+            result_dict = pickle.load(file)
+
+        # Check for transition matrix
+        if result_dict.get("trans_mat") is None:
+            print(f"Warning: Transition matrix not found for {method}, fold {fold}. Returning NaN.")
+            return np.nan
+
+        trans_mat = result_dict["trans_mat"]
+
+        # Compute EES
+        score = ees_score_sparse(trans_mat, mass_trim=mass_trim)
+
+        # Cleanup
+        del result_dict
+        gc.collect()
+
+        return score
+
+    # --- Main Execution Loop ---
+    for method in methods:
+        fold_scores = []
+
+        if k_fold == 0:
+            score = _process_single_fold(method, "full")
+            fold_scores.append(score)
+        else:
+            for fold in range(k_fold):
+                score = _process_single_fold(method, fold)
+                fold_scores.append(score)
+
+        ees_records[method] = fold_scores
+
+    # Format output
+    ees_df = pd.DataFrame(ees_records).T.reset_index()
+    ees_df.rename(columns={"index": "Method"}, inplace=True)
+
+    if save:
+        evl_path.mkdir(parents=True, exist_ok=True)
+        ees_df.to_csv(evl_path / "ees_df.csv", index=False)
+
+    return ees_df
 
 # def calculate_nte(    
 #     methods: List[str],
