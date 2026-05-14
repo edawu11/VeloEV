@@ -5,4 +5,4 @@ __pycache__/
 dist/
 build/
 .DS_Store
-demo/
+tutorial/demo/
