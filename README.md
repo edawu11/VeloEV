@@ -26,7 +26,17 @@ pip install .
 ## 📖 Reference
 If you use VeloEV in your research, please cite our paper:
 
-Yida Wu, Chuihan Kong, Xu Liao, Zhixiang Lin, Xiaobo Sun, Jin Liu. Comprehensive benchmarking of RNA velocity methods across single-cell datasets. Preprint. 2026.
+```bibtex
+@article{wu-Comprehensive-2026,
+  title = {Comprehensive Benchmarking of {{RNA}} Velocity Methods across Single-Cell Datasets},
+  author = {Wu, Yida and Kong, Chuihan and Liao, Xu and Lin, Zhixiang and Sun, Xiaobo and Liu, Jin},
+  year = 2026,
+  journal = {Genome Biology},
+  volume = {27},
+  number = {1},
+  pages = {242}
+}
+```
 
 ## 📄 License
 
